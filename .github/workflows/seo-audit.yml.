@@ -1,0 +1,37 @@
+name: Website SEO Audit
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 12 * * 1'
+
+permissions:
+  contents: read
+
+jobs:
+  seo-audit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check website
+        run: |
+          curl --fail --location --silent --show-error --retry 2 https://www.paulnapierskie.com/ -o homepage.html
+          echo "Website responded successfully"
+
+      - name: Check robots.txt
+        run: |
+          curl --location --silent --show-error https://www.paulnapierskie.com/robots.txt -o robots.txt
+          cat robots.txt
+
+      - name: Check sitemap
+        run: |
+          curl --location --silent --show-error https://www.paulnapierskie.com/sitemap.xml -o sitemap.xml
+          head -c 1000 sitemap.xml
+
+      - name: Save audit files
+        uses: actions/upload-artifact@v4
+        with:
+          name: seo-audit
+          path: |
+            homepage.html
+            robots.txt
+            sitemap.xml
